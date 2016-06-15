@@ -1,0 +1,5 @@
+--color
+--require spec_helper
+--format doc
+--fail-fast
+--order defined

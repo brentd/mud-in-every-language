@@ -1,7 +1,10 @@
 require 'socket'
 require 'optparse'
 
-options = {}
+options = {
+  port: 2000
+}
+
 OptionParser.new do |opts|
   opts.banner = "Usage: ruby server.rb [options]"
 
