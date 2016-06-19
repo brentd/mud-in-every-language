@@ -1,42 +1,42 @@
 require "socket"
 
 class TestClient
-  attr_reader :port, :log
+  attr_reader :port, :log, :socket, :out
 
-  def initialize(port:)
+  def initialize(port:, log: StringIO.new)
     @port = port
+    @log  = log
+    @out  = StringIO.new
   end
 
   def connect
     @socket = TCPSocket.open("0.0.0.0", port)
-    @out = Queue.new
-    @log = []
-
-    Thread.new do
-      while line = @socket.gets("\n")
-        line = line.rstrip
-        @log << line
-        @out << line
-      end
-    end
+    @log.puts "[Client connected]".yellow
   end
 
   def disconnect
     @socket.close
+    @log.puts "[Client disconnected]".yellow
   end
 
-  def input(str)
-    @log << "> #{str}"
+  def reconnect
+    disconnect
+    connect
+  end
+
+  def puts(str)
+    @log.puts "> #{str}".yellow
     @socket.puts(str)
   end
+  alias_method :<<, :puts
 
-  def readlines_until(timeout = 1)
-    time = Time.now
-    matched = false
-    Thread.new do
-      until matched = yield(@out.pop); end
+  def each_line(*args)
+    @socket.each_line(*args) do |line|
+      @out << line
+      @log << "#{line}"
+      yield line
     end
-    until matched || Time.now - time >= timeout; end
-    matched
+  rescue Errno::ECONNRESET
+    @log.puts "[Client disconnected by server]".yellow
   end
 end
