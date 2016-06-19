@@ -1,8 +1,11 @@
 describe "Login" do
   before do
-    @server = TestServer.new(port: 6000)
+    @log    = STDOUT
+    # TODO: move debug_regexp to a per-project yml
+    @server = TestServer.new(port: 6000, log: @log, debug_regexp: /^From: /)
+    @client = TestClient.new(port: 6000, log: @log)
+
     @server.start
-    @client = TestClient.new(port: 6000)
     @client.connect
   end
 
@@ -12,49 +15,48 @@ describe "Login" do
 
   it "prompts for a name upon connection" do
     expect_displayed "What is your name, wanderer?"
-    @client.disconnect
-    @client.connect
+    @client.reconnect
     expect_displayed "What is your name, wanderer?"
   end
 
   it "recognizes a new name" do
     expect_displayed "What is your name, wanderer?"
-    @client.input "Ethrin"
+    @client << "Ethrin"
     expect_displayed "Did I hear that right, Ethrin?"
   end
 
   it "allows canceling character creation" do
     expect_displayed "What is your name, wanderer?"
-    @client.input "Ethrin"
+    @client << "Ethrin"
     expect_displayed "Did I hear that right, Ethrin?"
-    @client.input "y"
+    @client << "y"
     expect_displayed "Give me a password for Ethrin"
-    @client.input "s3kr3t"
+    @client << "s3kr3t"
     expect_displayed(/welcome to/i)
   end
 
   it "allows setting a password" do
     expect_displayed "What is your name, wanderer?"
-    @client.input "Ethrin"
+    @client << "Ethrin"
     expect_displayed "Did I hear that right, Ethrin?"
-    @client.input "y"
+    @client << "y"
     expect_displayed "Give me a password for Ethrin"
-    @client.input "s3kr3t"
+    @client << "s3kr3t"
     expect_displayed(/welcome to/i)
   end
 
   it "persists the created user and allows reconnecting" do
     expect_displayed "What is your name, wanderer?"
-    @client.input "Ethrin"
-    @client.input "y"
-    @client.input "s3kr3t"
+    @client << "Ethrin"
+    @client << "y"
+    @client << "s3kr3t"
 
     @client.disconnect
     @client.connect
 
-    @client.input "Ethrin"
+    @client << "Ethrin"
     expect_displayed "Password:"
-    @client.input "s3kr3t"
+    @client << "s3kr3t"
     expect_displayed(/welcome back/i)
   end
 
