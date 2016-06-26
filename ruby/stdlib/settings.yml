@@ -1,0 +1,4 @@
+start: ruby server.rb -p 6000
+port: 6000
+teardown: rm db.yml
+debugger_match: '^From: '
