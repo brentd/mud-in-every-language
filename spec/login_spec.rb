@@ -2,55 +2,87 @@ describe "Login" do
   before { client.connect }
 
   it "prompts for a name upon connection" do
-    expect_displayed "What is your name, wanderer?"
-    @client.reconnect
-    expect_displayed "What is your name, wanderer?"
+    » "What is your name, wanderer?"
+    client.reconnect
+    » "What is your name, wanderer?"
   end
 
   it "recognizes a new name" do
-    expect_displayed "What is your name, wanderer?"
-    @client << "Ethrin"
-    expect_displayed "Did I hear that right, Ethrin?"
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Did I hear that right, Ethrin?"
+  end
+
+  it "allows character creation" do
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Did I hear that right, Ethrin?"
+    « "y"
+    » "Give me a password for Ethrin"
+    « "s3kr3t"
+    »(/welcome/i)
   end
 
   it "allows canceling character creation" do
-    expect_displayed "What is your name, wanderer?"
-    @client << "Ethrin"
-    expect_displayed "Did I hear that right, Ethrin?"
-    @client << "y"
-    expect_displayed "Give me a password for Ethrin"
-    @client << "s3kr3t"
-    expect_displayed(/welcome to/i)
+    skip
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Did I hear that right, Ethrin?"
+    « "n"
+    » "What is your name, wanderer?"
   end
 
-  it "allows setting a password" do
-    expect_displayed "What is your name, wanderer?"
-    @client << "Ethrin"
-    expect_displayed "Did I hear that right, Ethrin?"
-    @client << "y"
-    expect_displayed "Give me a password for Ethrin"
-    @client << "s3kr3t"
-    expect_displayed(/welcome to/i)
+  it "persists the created character and allows reconnecting" do
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    « "y"
+    « "s3kr3t"
+
+    client.reconnect
+
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Password:"
+    « "s3kr3t"
+    »(/welcome back/i)
   end
 
-  it "persists the created user and allows reconnecting" do
-    expect_displayed "What is your name, wanderer?"
-    @client << "Ethrin"
-    @client << "y"
-    @client << "s3kr3t"
+  it "re-prompts for the password given an incorrect attempt" do
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    « "y"
+    « "s3kr3t"
 
-    @client.disconnect
-    @client.connect
+    client.reconnect
 
-    @client << "Ethrin"
-    expect_displayed "Password:"
-    @client << "s3kr3t"
-    expect_displayed(/welcome back/i)
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Password:"
+    « "wrong"
+    » "Password:"
+    « "s3kr3t"
+    »(/welcome back/i)
   end
 
-  it "re-prompts for the password given an incorrect attempt"
+  it "it disconnects the client after 3 failed password attempts" do
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    « "y"
+    « "s3kr3t"
 
-  it "it disconnects the client after 3 failed password attempts"
+    client.reconnect
+
+    » "What is your name, wanderer?"
+    « "Ethrin"
+    » "Password:"
+    « "wrong"
+    » "Password:"
+    « "wrong again"
+    » "Password:"
+    « "wrongggg"
+
+    expect(client).to be_disconnected
+  end
 end
 
 describe "--test-mode" do
