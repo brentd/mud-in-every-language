@@ -1,17 +1,5 @@
 describe "Login" do
-  before do
-    @log    = STDOUT
-    # TODO: move debug_regexp to a per-project yml
-    @server = TestServer.new(port: 6000, log: @log, debug_regexp: /^From: /)
-    @client = TestClient.new(port: 6000, log: @log)
-
-    @server.start
-    @client.connect
-  end
-
-  after do
-    @server.stop
-  end
+  before { client.connect }
 
   it "prompts for a name upon connection" do
     expect_displayed "What is your name, wanderer?"
