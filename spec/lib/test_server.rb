@@ -24,14 +24,17 @@ class TestServer
     end
 
     reader = Thread.new do
-      r.each do |line|
-        if line.no_color =~ @debug_regexp
-          puts "Debug mode matched; handing io to the server...\n"
-          puts line
-          replace_with_server(r, w)
-        else
-          @log << "[SERVER] ".red + line
+      begin
+        r.each do |line|
+          if line.no_color =~ @debug_regexp
+            puts "Debug mode matched; handing io to the server...\n"
+            puts line
+            replace_with_server(r, w)
+          else
+            @log << "[SERVER] ".red + line
+          end
         end
+      rescue Errno::EIO
       end
     end
     reader.abort_on_exception = true

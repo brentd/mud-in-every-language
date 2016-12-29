@@ -26,8 +26,9 @@ RSpec::Matchers.define :display do |expected|
 
     reader = Thread.new do
       client.each do |line|
-        log << line
-        break if matched = values_match?(expected, line.rstrip)
+        matched = values_match?(expected, line.rstrip)
+        log << matched ? line.green : line
+        break if matched
       end
     end
 

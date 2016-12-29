@@ -1,4 +1,5 @@
 require "socket"
+require "timeout"
 
 class TestClient
   attr_reader :port, :log, :socket, :out
@@ -12,15 +13,13 @@ class TestClient
   def connect
     @socket = TCPSocket.open("0.0.0.0", port)
 
-    # Log all reads from the socket, while buffering the data to
-    # `out` so it can be read by other consumers.
     Thread.new do
       sleep 0.01
       begin
         @log.puts "[Client connected]".yellow
         @socket.each_line do |line|
           @buf << line
-          @log << "| #{line}"
+          @log << "> #{line}"
         end
       rescue Errno::ECONNRESET
         @log.puts "[Client disconnected by server]".yellow
@@ -29,19 +28,30 @@ class TestClient
   end
 
   def disconnect
-    @socket.close
-    @log.puts "[Client disconnected]".yellow
+    if connected?
+      @socket.close
+      @log.puts "[Client disconnected]".yellow
+    end
   end
 
   def reconnect
     disconnect
     connect
   end
-
-  def closed?
-    @socket.eof?
+  
+  def connected?
+    @socket && !@socket.closed?
   end
-  alias_method :disconnected?, :closed?
+  
+  def eof?
+    Timeout.timeout(0.5) { @socket.eof? }
+  rescue Timeout::TimeoutError
+    false
+  end
+
+  def disconnected?
+    !connected? || eof?
+  end
 
   def puts(str)
     @log.puts "> #{str}".green

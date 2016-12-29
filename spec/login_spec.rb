@@ -80,7 +80,7 @@ describe "Login" do
     « "wrong again"
     » "Password:"
     « "wrongggg"
-
+    
     expect(client).to be_disconnected
   end
 end
