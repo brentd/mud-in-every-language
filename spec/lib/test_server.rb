@@ -6,7 +6,7 @@ class TestServer
   CTRL_C_CODE = ?\C-c
   DEBUG_MODE_SIGNAL = "USR1"
 
-  def initialize(port:, project_dir: "ruby", debug_regexp: nil, log: StringIO.new, command: "start")
+  def initialize(port:, project_dir:, debug_regexp: nil, log: StringIO.new, command: "start")
     @port = port
     @project_dir = project_dir
     @log = log
@@ -15,7 +15,11 @@ class TestServer
   end
 
   def start
-    r, w, @pid = PTY.spawn(@command)
+    r, w = nil, nil
+
+    Dir.chdir(@project_dir) do
+      r, w, @pid = PTY.spawn(@command)
+    end
 
     # Block until the server has started
     r.each do |line|

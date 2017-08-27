@@ -1,14 +1,19 @@
+require "rspec"
 require "pry"
 require "open3"
 require "yaml"
 
-require_relative "lib/matchers"
-require_relative "lib/colorize"
-require_relative "lib/test_client"
-require_relative "lib/test_server"
+require_relative "matchers"
+require_relative "colorize"
+require_relative "test_client"
+require_relative "test_server"
 
 RSpec.configure do |config|
-  config.include Helpers
+  config.include ::Helpers
+
+  config.backtrace_exclusion_patterns += [
+    /parser\.rb/
+  ]
 
   config.before(:suite) do
     project = ENV["MUD_PROJECT"] || begin
@@ -16,32 +21,30 @@ RSpec.configure do |config|
       "ruby/stdlib"
     end
 
-    Dir.chdir(project)
-
-    $settings = YAML.load(File.read("settings.yml"))
-  end
-
-  config.before(:each) do
-    @log = STDOUT
+    $settings = YAML.load(File.read("#{project}/settings.yml"))
 
     if debugger_match = $settings["debugger_match"]
       debug_regexp = Regexp.new(debugger_match)
     end
 
-    @server = TestServer.new(
-      log: @log,
+    $server = TestServer.new(
+      log: STDOUT,
       port: $settings["port"],
       command: $settings["start"],
-      debug_regexp: debug_regexp
+      debug_regexp: debug_regexp,
+      project_dir: project
     )
+  end
 
-    @server.start
+  config.before(:each) do
+    @log = STDOUT
+    $server.start
   end
 
   config.after(:each) do
     if teardown = $settings["teardown"]
       Open3.capture3 teardown
     end
-    @server.stop
+    $server.stop
   end
 end

@@ -1,0 +1,11 @@
+Prompts for a name after connecting
+  % client.connect
+  What is your name, wanderer?
+  % client.reconnect
+  What is your name, wanderer?
+
+Recognizes a new name
+  % client.connect
+  What is your name, wanderer?
+  > Ethrin
+  Did I hear that right, Ethrin?
