@@ -19,7 +19,7 @@ class TestClient
         @log.puts "[Client connected]".yellow
         @socket.each_line do |line|
           @buf << line
-          @log << "> #{line}"
+          @log << "#{line}"
         end
       rescue Errno::ECONNRESET
         @log.puts "[Client disconnected by server]".yellow
@@ -38,11 +38,11 @@ class TestClient
     disconnect
     connect
   end
-  
+
   def connected?
     @socket && !@socket.closed?
   end
-  
+
   def eof?
     Timeout.timeout(0.5) { @socket.eof? }
   rescue Timeout::TimeoutError
@@ -62,7 +62,7 @@ class TestClient
     puts str
   end
 
-  def each(*args, &blk)
+  def each_line(*args, &blk)
     @out.each(*args, &blk)
   end
 end

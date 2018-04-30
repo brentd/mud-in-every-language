@@ -1,15 +1,25 @@
 require "socket"
 require "optparse"
+require "pathname"
 
 options = {
-  port: 2000
+  port: 2000,
+  db_path: Pathname.new(File.expand_path("../db.yml", __FILE__))
 }
 
 OptionParser.new do |opts|
   opts.banner = "Usage: ruby server.rb [options]"
 
-  opts.on("-pPORT", "--port=PORT", "Port to listen for TCP connections") do |p|
+  opts.on("-p PORT", "--port=PORT", "Port to listen for TCP connections") do |p|
     options[:port] = p.to_i
+  end
+
+  opts.on("-d PATH", "--db=PATH", "Create or use the database file at PATH") do |path|
+    options[:db_path] = Pathname.new(path)
+  end
+
+  opts.on("-l FILE", "--load=FILE", "Load the database with initial data from a JSON file") do |path|
+    options[:load] = Pathname.new(path)
   end
 end.parse!
 
@@ -19,7 +29,7 @@ puts "Server running on 0.0.0.0 port #{options[:port]}"
 
 require "yaml/store"
 
-Store = YAML::Store.new(File.expand_path('../db.yml', __FILE__), true)
+Store = YAML::Store.new(options[:db_path], true)
 
 Store.transaction do
   Store["users"] ||= []
@@ -46,7 +56,7 @@ loop do
       client = socket
 
       client.puts "What is your name, wanderer?"
-      name = client.gets
+      name = client.gets.strip
 
       user = Store.transaction(true) {
         Store["users"].detect { |u| u[:name] == name }
@@ -56,7 +66,7 @@ loop do
         attempt = 1
         loop do
           client.puts "Password:"
-          password = client.gets
+          password = client.gets.strip
 
           if user[:password] == password
             client.puts "Welcome back, #{name}"
@@ -74,11 +84,11 @@ loop do
         end
       else
         client.puts "Did I hear that right, #{name}?"
-        answer = client.gets
+        answer = client.gets.strip
 
         if answer =~ /^y/i
           client.puts "Give me a password for #{name}"
-          password = client.gets
+          password = client.gets.strip
 
           Store.transaction do
             Store["users"] << {name: name, password: password}
@@ -86,10 +96,11 @@ loop do
 
           client.puts "Welcome, #{name}"
         else
-          raise "go back to login"
+          # raise "go back to login"
         end
       end
     rescue ClientMixin::ClientDisconnected
+    rescue Errno::EIO, Errno::EPIPE, EOFError
     end
   end
 end

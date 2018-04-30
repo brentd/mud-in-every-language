@@ -9,3 +9,46 @@ Recognizes a new name
   What is your name, wanderer?
   > Ethrin
   Did I hear that right, Ethrin?
+
+Creating a new character
+  % client.connect
+  > Ethrin
+  Did I hear that right, Ethrin?
+  > y
+  Give me a password for Ethrin
+  > s3kr3t
+  Welcome, Ethrin
+
+Persists created characters
+  % client.connect
+  What is your name, wanderer?
+  > Ethrin
+  Did I hear that right, Ethrin?
+  > y
+  Give me a password for Ethrin
+  > s3kr3t
+  % client.reconnect
+  What is your name, wanderer?
+  > Ethrin
+  Password:
+  > s3kr3t
+  Welcome back, Ethrin
+
+Disconnects the client after 3 failed password attempts
+  % client.connect
+  What is your name, wanderer?
+  > Ethrin
+  Did I hear that right, Ethrin?
+  > y
+  Give me a password for Ethrin
+  > s3kr3t
+  % client.reconnect
+  What is your name, wanderer?
+  > Ethrin
+  Password:
+  > foo
+  Password:
+  > foo
+  Password:
+  > foo
+  Too many failed login attempts.

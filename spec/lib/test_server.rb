@@ -14,11 +14,17 @@ class TestServer
     @command = command
   end
 
-  def start
+  def start(db_path:, init_path: nil)
     r, w = nil, nil
 
+    args = []
+    args << "--db #{db_path}"
+    args << "--load #{init_path}" if init_path
+
+    puts "#{@command} #{args.join(' ')}"
+
     Dir.chdir(@project_dir) do
-      r, w, @pid = PTY.spawn(@command)
+      r, w, @pid = PTY.spawn("#{@command} #{args.join(' ')}")
     end
 
     # Block until the server has started

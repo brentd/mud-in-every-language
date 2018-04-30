@@ -1,0 +1,12 @@
+---
+users:
+- :name: foo
+  :password: foo
+- :name: bar
+  :password: 'bar
+
+'
+- :name: Ethrin
+  :password: 'foo
+
+'
