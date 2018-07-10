@@ -18,7 +18,7 @@ module MudInEveryLanguage
       end
 
       def load(name)
-        @init_path = File.expand_path("../../data/#{name}.json", __FILE__)
+        @init_path = File.expand_path("../../spec/data/#{name}.json", __FILE__)
       end
 
       def start_server

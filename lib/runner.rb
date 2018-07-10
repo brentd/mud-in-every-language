@@ -27,7 +27,6 @@ module MudInEveryLanguage
   end
 end
 
-# project = MudInEveryLanguage::Project.new("./ruby/stdlib")
 project = MudInEveryLanguage::Project.new(ENV["MUD_PROJECT"])
 
 server = TestServer.new(
