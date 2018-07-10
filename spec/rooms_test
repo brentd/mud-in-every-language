@@ -1,9 +1,9 @@
 Logging in with no rooms in the database
+  % load 'one_user'
   % client.connect
   > Ethrin
   > s3kr3t
+  Welcome back, Ethrin.
 
-Logging in with no rooms in the database
-  % client.connect
-  > Ethrin
-  > s3kr3t
+  The Void
+    You don't think that you are not floating in nothing.

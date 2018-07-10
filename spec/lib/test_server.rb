@@ -21,12 +21,12 @@ class TestServer
     args << "--db #{db_path}"
     args << "--load #{init_path}" if init_path
 
-    puts "#{@command} #{args.join(' ')}"
+    cmd = "#{@command} #{args.join(' ')}"
+    puts "> #{cmd}"
 
     Dir.chdir(@project_dir) do
-      r, w, @pid = PTY.spawn("#{@command} #{args.join(' ')}")
+      r, w, @pid = PTY.spawn(cmd)
     end
-
     # Block until the server has started
     r.each do |line|
       @log << "[SERVER] ".red + line
@@ -57,7 +57,8 @@ class TestServer
   end
 
   def stop
-    Process.kill("SIGTERM", @pid) rescue nil
+    Process.kill("SIGKILL", @pid)
+    Process.wait(@pid)
   end
 
   def replace_with_server(r, w)

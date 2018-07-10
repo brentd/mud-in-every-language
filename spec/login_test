@@ -32,7 +32,7 @@ Persists created characters
   > Ethrin
   Password:
   > s3kr3t
-  Welcome back, Ethrin
+  Welcome back, Ethrin.
 
 Disconnects the client after 3 failed password attempts
   % client.connect

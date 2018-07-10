@@ -8,30 +8,42 @@ module MudInEveryLanguage
       def self.test_order
         :alpha
       end
+
+      def self.server=(server)
+        @@server = server
+      end
+
+      def server
+        @@server
+      end
+
+      def load(name)
+        @init_path = File.expand_path("../../data/#{name}.json", __FILE__)
+      end
+
+      def start_server
+        server.start(db_path: Tempfile.new('db').path, init_path: @init_path)
+      end
+
+      let(:client) do
+        start_server
+        TestClient.new(port: server.port)
+      end
+
+      after do
+        server.stop
+      end
     end
 
     class Builder
       attr_reader :spec, :server
 
       def initialize(server, spec: Class.new(MudInEveryLanguage::Spec::Case))
-        @server = server
+        spec.server = server
         @spec = spec
       end
 
       def call(title, lines, skip: false, data: nil)
-        server = @server
-
-        spec.let(:server) { server }
-        spec.let(:client) { TestClient.new(port: server.port) }
-
-        spec.before do
-          server.start(db_path: Tempfile.new('db').path)
-        end
-
-        spec.after do
-          server.stop
-        end
-
         spec.it(title) do
           lines.each do |line|
             eval_str = case line

@@ -27,12 +27,23 @@ server = TCPServer.new(options[:port])
 
 puts "Server running on 0.0.0.0 port #{options[:port]}"
 
+
 require "yaml/store"
+require "json"
 
 Store = YAML::Store.new(options[:db_path], true)
 
-Store.transaction do
-  Store["users"] ||= []
+if options[:load]
+  data = JSON.parse(options[:load].read)
+  Store.transaction do
+    data.each do |key, value|
+      Store[key] = value
+    end
+  end
+else
+  Store.transaction do
+    Store["users"] ||= []
+  end
 end
 
 require "pry"
@@ -59,7 +70,7 @@ loop do
       name = client.gets.strip
 
       user = Store.transaction(true) {
-        Store["users"].detect { |u| u[:name] == name }
+        Store["users"].detect { |u| u["name"] == name }
       }
 
       if user
@@ -68,8 +79,8 @@ loop do
           client.puts "Password:"
           password = client.gets.strip
 
-          if user[:password] == password
-            client.puts "Welcome back, #{name}"
+          if user["password"] == password
+            client.puts "Welcome back, #{name}."
             break
           else
             if attempt < 3
@@ -91,7 +102,7 @@ loop do
           password = client.gets.strip
 
           Store.transaction do
-            Store["users"] << {name: name, password: password}
+            Store["users"] << {"name" => name, "password" => password}
           end
 
           client.puts "Welcome, #{name}"

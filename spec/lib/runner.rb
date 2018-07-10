@@ -20,14 +20,16 @@ module MudInEveryLanguage
   class Project
     attr_reader :dir, :settings, :server
 
-    def initialize(dir: "./ruby/stdlib")
+    def initialize(dir)
       @dir = Pathname.new(dir)
       @settings = YAML.load(@dir.join("settings.yml").read)
     end
   end
 end
 
-project = MudInEveryLanguage::Project.new
+# project = MudInEveryLanguage::Project.new("./ruby/stdlib")
+project = MudInEveryLanguage::Project.new(ENV["MUD_PROJECT"])
+
 server = TestServer.new(
   project_dir:  project.dir,
   port:         project.settings["port"],
@@ -36,14 +38,16 @@ server = TestServer.new(
   # debug_regexp: debug_regexp
 )
 
-file, line_number = ARGV[0].split(":")
+if ARGV[0]
+  file, line_number = ARGV[0].split(":")
+end
 
 parsed_files = begin
   if file
     TestParser.new.parse(File.read(file))
   else
-    Dir["spec/*_test"].map do |file|
-      TestParser.new.parse(File.read(file))
+    Dir["spec/*_test"].map do |f|
+      TestParser.new.parse(File.read(f))
     end
   end
 rescue Parslet::ParseFailed => e
