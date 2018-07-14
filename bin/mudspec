@@ -1,3 +1,2 @@
 #!/bin/sh
-
-ruby lib/runner.rb "$@"
+ruby $(dirname "$0")/../lib/runner.rb "$@"

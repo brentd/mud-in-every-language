@@ -18,16 +18,20 @@ module MudInEveryLanguage
       end
 
       def load(name)
-        @init_path = File.expand_path("../../spec/data/#{name}.json", __FILE__)
+        @init_path = File.expand_path("../../spec/data/#{name}.yml", __FILE__)
       end
 
       def start_server
         server.start(db_path: Tempfile.new('db').path, init_path: @init_path)
       end
 
-      let(:client) do
-        start_server
-        TestClient.new(port: server.port)
+      # Lazy getter - the first time during the test that `client` is accessed,
+      # the server is started and the client connects.
+      def client
+        @client ||= begin
+          start_server
+          TestClient.new(port: server.port).connect
+        end
       end
 
       after do

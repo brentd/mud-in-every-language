@@ -1,7 +1,7 @@
 require "pty"
 
 class TestServer
-  attr_reader :port, :thread
+  attr_reader :port
 
   CTRL_C_CODE = ?\C-c
   DEBUG_MODE_SIGNAL = "USR1"
@@ -18,15 +18,17 @@ class TestServer
     r, w = nil, nil
 
     args = []
+    args << "--port #{port}"
     args << "--db #{db_path}"
     args << "--load #{init_path}" if init_path
 
     cmd = "#{@command} #{args.join(' ')}"
-    puts "> #{cmd}"
+    # puts "> #{cmd}"
 
     Dir.chdir(@project_dir) do
       r, w, @pid = PTY.spawn(cmd)
     end
+
     # Block until the server has started
     r.each do |line|
       @log << "[SERVER] ".red + line

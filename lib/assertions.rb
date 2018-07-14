@@ -3,7 +3,7 @@ module MudInEveryLanguage
     module Assertions
       def assert_client_displayed(expected)
         matched = false
-        timeout = 2
+        timeout = 1
 
         reader = Thread.new do
           Thread.current.abort_on_exception = true

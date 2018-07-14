@@ -1,26 +1,23 @@
 Prompts for a name after connecting
-  % client.connect
   What is your name, wanderer?
   % client.reconnect
   What is your name, wanderer?
 
 Recognizes a new name
-  % client.connect
   What is your name, wanderer?
   > Ethrin
   Did I hear that right, Ethrin?
 
 Creating a new character
-  % client.connect
+  What is your name, wanderer?
   > Ethrin
   Did I hear that right, Ethrin?
   > y
   Give me a password for Ethrin
   > s3kr3t
-  Welcome, Ethrin
+  Welcome, Ethrin.
 
 Persists created characters
-  % client.connect
   What is your name, wanderer?
   > Ethrin
   Did I hear that right, Ethrin?
@@ -35,7 +32,6 @@ Persists created characters
   Welcome back, Ethrin.
 
 Disconnects the client after 3 failed password attempts
-  % client.connect
   What is your name, wanderer?
   > Ethrin
   Did I hear that right, Ethrin?

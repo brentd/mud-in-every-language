@@ -11,10 +11,11 @@ class TestClient
   end
 
   def connect
+    return self if connected?
+
     @socket = TCPSocket.open("0.0.0.0", port)
 
     Thread.new do
-      sleep 0.01
       begin
         @log.puts "[Client connected]".yellow
         @socket.each_line do |line|
@@ -25,6 +26,8 @@ class TestClient
         @log.puts "[Client disconnected by server]".yellow
       end
     end
+
+    return self
   end
 
   def disconnect

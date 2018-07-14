@@ -27,25 +27,26 @@ module MudInEveryLanguage
   end
 end
 
-project = MudInEveryLanguage::Project.new(ENV["MUD_PROJECT"])
+project = MudInEveryLanguage::Project.new(ARGV[0] || ".")
 
 server = TestServer.new(
   project_dir:  project.dir,
-  port:         project.settings["port"],
+  port:         ENV["MUD_PORT"] || 6000,
   command:      project.settings["start"],
-  log:          STDOUT,
-  # debug_regexp: debug_regexp
+  # log:          STDOUT
 )
 
-if ARGV[0]
-  file, line_number = ARGV[0].split(":")
+spec_dir = File.expand_path("../../spec", __FILE__)
+
+if ARGV[1]
+  file, line_number = ARGV[1].split(":")
 end
 
 parsed_files = begin
   if file
     TestParser.new.parse(File.read(file))
   else
-    Dir["spec/*_test"].map do |f|
+    Dir["#{spec_dir}/*_test"].map do |f|
       TestParser.new.parse(File.read(f))
     end
   end
@@ -59,7 +60,8 @@ if line_number
   end
 end
 
+builder = MudInEveryLanguage::Spec::Builder.new(server)
+
 parsed_files.each do |parse_tree|
-  builder = MudInEveryLanguage::Spec::Builder.new(server)
   TestTransformer.new.apply(parse_tree, builder: builder)
 end

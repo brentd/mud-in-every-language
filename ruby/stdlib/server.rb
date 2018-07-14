@@ -18,33 +18,36 @@ OptionParser.new do |opts|
     options[:db_path] = Pathname.new(path)
   end
 
-  opts.on("-l FILE", "--load=FILE", "Load the database with initial data from a JSON file") do |path|
+  opts.on("-l FILE", "--load=FILE", "Load the database with initial data from a YAML file") do |path|
     options[:load] = Pathname.new(path)
   end
 end.parse!
 
-server = TCPServer.new(options[:port])
+server = TCPServer.new("0.0.0.0", options[:port])
 
-puts "Server running on 0.0.0.0 port #{options[:port]}"
+puts "Server running on 0.0.0.0:#{options[:port]}"
 
 
 require "yaml/store"
-require "json"
 
 Store = YAML::Store.new(options[:db_path], true)
 
+
 if options[:load]
-  data = JSON.parse(options[:load].read)
+  data = YAML.load(options[:load].read)
   Store.transaction do
     data.each do |key, value|
       Store[key] = value
     end
   end
-else
-  Store.transaction do
-    Store["users"] ||= []
-  end
 end
+
+# Initialize some properties in the store we expect to be available
+Store.transaction do
+  Store["config"] ||= {}
+  Store["users"] ||= []
+end
+
 
 require "pry"
 
@@ -55,6 +58,29 @@ module ClientMixin
     super.tap do |s|
       raise ClientDisconnected if s.nil?
     end.rstrip
+  end
+end
+
+
+class Room
+  attr_reader :title, :description
+
+  def self.default_room
+    new("The Void", "You don't think that you are not floating in nothing.")
+  end
+
+  def initialize(title, description)
+    @title = title
+    @description = description
+  end
+end
+
+def find_room(player)
+  room_id = player["room"]
+  if room_id && room = Store.transaction(true) { Store["rooms"].detect { |r| r["id"] == room_id } }
+    return Room.new(room["title"], room["description"])
+  else
+    return Room.default_room
   end
 end
 
@@ -81,6 +107,11 @@ loop do
 
           if user["password"] == password
             client.puts "Welcome back, #{name}."
+            room = find_room(user)
+
+            client.puts room.title
+            client.puts "  #{room.description}"
+
             break
           else
             if attempt < 3
@@ -101,11 +132,19 @@ loop do
           client.puts "Give me a password for #{name}"
           password = client.gets.strip
 
+          starting_room = Store.transaction(true) { Store["config"]["starting_room"] }
+          user = {"name" => name, "password" => password, "room" => starting_room }
+
           Store.transaction do
-            Store["users"] << {"name" => name, "password" => password}
+            Store["users"] << user
           end
 
-          client.puts "Welcome, #{name}"
+          client.puts "Welcome, #{name}."
+
+          room = find_room(user)
+
+          client.puts room.title
+          client.puts "  #{room.description}"
         else
           # raise "go back to login"
         end

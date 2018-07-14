@@ -1,3 +1,2 @@
-start: ruby server.rb -p 6000
-port: 6000
+start: ruby server.rb
 debugger_match: '^From: '

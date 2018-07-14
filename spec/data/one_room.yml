@@ -1,0 +1,6 @@
+config:
+  starting_room: 1
+rooms:
+  - id: 1
+    title: Above the Clouds
+    description: The world lies below you. Rivers carve through the land, reflecting glittering sunlight that pierces through the haze of cloudcover. The horizon bends in every direction, disappearing into a vast gradient of blue.
