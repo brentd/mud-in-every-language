@@ -106,7 +106,7 @@ loop do
           password = client.gets.strip
 
           if user["password"] == password
-            client.puts "Welcome back, #{name}."
+            # client.puts "Welcome back, #{name}."
             room = find_room(user)
 
             client.puts room.title

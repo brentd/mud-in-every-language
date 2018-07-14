@@ -42,7 +42,7 @@ if ARGV[1]
   file, line_number = ARGV[1].split(":")
 end
 
-parsed_files = begin
+parse_tree = begin
   if file
     TestParser.new.parse(File.read(file))
   else
@@ -55,13 +55,12 @@ rescue Parslet::ParseFailed => e
 end
 
 if line_number
-  parsed_files = parsed_files.select do |h|
-    h[:test][:title].line_and_column[0] == line_number.to_i
-  end
+  idx = parse_tree.index { |h| line_number.to_i < h[:test][:title].line_and_column[0] }
+  parse_tree = [parse_tree[(idx || parse_tree.size) - 1]]
 end
 
 builder = MudInEveryLanguage::Spec::Builder.new(server)
 
-parsed_files.each do |parse_tree|
+parse_tree.each do |parse_tree|
   TestTransformer.new.apply(parse_tree, builder: builder)
 end

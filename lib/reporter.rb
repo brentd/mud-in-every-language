@@ -13,6 +13,7 @@ module MudInEveryLanguage
         if result.passed?
           io.puts "✓ #{title}".green
         else
+          puts result.failure.class
           location = result.failure.location
           @failure_titles << failure_title = "✗ #{title}".red + " - #{location}"
 

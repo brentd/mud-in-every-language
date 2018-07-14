@@ -58,6 +58,10 @@ module MudInEveryLanguage
               when RubyLine
                 line
             end
+
+            # `line.location` is the test DSL file's location. PQassing it as
+            # the 3rd arg to `instance_eval` means that stack traces will show
+            # it instead of a line in this file, which is much more useful.
             instance_eval(eval_str, "spec/login_test", line.location)
           end
         end
