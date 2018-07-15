@@ -40,14 +40,17 @@ module MudInEveryLanguage
     end
 
     class Builder
-      attr_reader :spec, :server
+      attr_reader :spec, :server, :filename
 
-      def initialize(server, spec: Class.new(MudInEveryLanguage::Spec::Case))
+      def initialize(server, filename, spec: Class.new(MudInEveryLanguage::Spec::Case))
         spec.server = server
         @spec = spec
+        @filename = filename
       end
 
       def call(title, lines, skip: false, data: nil)
+        filename = self.filename
+
         spec.it(title) do
           lines.each do |line|
             eval_str = case line
@@ -62,7 +65,7 @@ module MudInEveryLanguage
             # `line.location` is the test DSL file's location. PQassing it as
             # the 3rd arg to `instance_eval` means that stack traces will show
             # it instead of a line in this file, which is much more useful.
-            instance_eval(eval_str, "spec/login_test", line.location)
+            instance_eval(eval_str, filename, line.location)
           end
         end
       end

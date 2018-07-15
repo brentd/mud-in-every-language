@@ -42,25 +42,25 @@ if ARGV[1]
   file, line_number = ARGV[1].split(":")
 end
 
-parse_tree = begin
+parsed_files = begin
   if file
-    TestParser.new.parse(File.read(file))
+    parse_tree = TestParser.new.parse_with_debug(File.read(file))
+
+    if line_number
+      idx = parse_tree.index { |h| line_number.to_i < h[:test][:title].line_and_column[0] }
+      parse_tree = parse_tree[(idx || parse_tree.size) - 1]
+    end
+
+    [[file, parse_tree]]
   else
     Dir["#{spec_dir}/*_test"].map do |f|
-      TestParser.new.parse(File.read(f))
+      [f, TestParser.new.parse_with_debug(File.read(f))]
     end
   end
-rescue Parslet::ParseFailed => e
-  puts e.cause.ascii_tree
 end
 
-if line_number
-  idx = parse_tree.index { |h| line_number.to_i < h[:test][:title].line_and_column[0] }
-  parse_tree = [parse_tree[(idx || parse_tree.size) - 1]]
-end
 
-builder = MudInEveryLanguage::Spec::Builder.new(server)
-
-parse_tree.each do |parse_tree|
-  TestTransformer.new.apply(parse_tree, builder: builder)
+parsed_files.each do |(filename, tree)|
+  builder = MudInEveryLanguage::Spec::Builder.new(server, filename)
+  TestTransformer.new.apply(tree, builder: builder)
 end

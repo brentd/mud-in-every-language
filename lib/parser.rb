@@ -1,6 +1,7 @@
 require "pathname"
 require "yaml"
 require "parslet"
+require "parslet/convenience"
 require "pry"
 
 # The parse turns raw text into a tree of string tokens. Read it from the bottom up.
