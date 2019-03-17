@@ -1,5 +1,7 @@
 # A MUD in Every Language
 
+Because what programmer's GitHub isn't complete without an overly-ambitious repo?
+
 This is a fun project intended as a base for exploring programming languages. I
 think writing a MUD is a great way to get familiar with a language, as it
 requires some fundamental concepts:
@@ -15,7 +17,17 @@ In the `spec` directory is a Ruby RSpec suite of end-to-end tests that will
 connect via TCP to a MUD server and perform inputs as a user. It is designed to
 be a guide while developing an implementation.
 
-Planned languages:
+## Running the specs against a MUD implementation
+
+To run the specs, use `bin/mudspec` with a specified project directory.
+
+For example, to run the specs against the stdlib Ruby implementation:
+
+```sh
+bin/mudspec ruby/stdlib
+```
+
+## Planned languages:
 
   * C
   * C++

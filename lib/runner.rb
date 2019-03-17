@@ -27,7 +27,7 @@ module MudInEveryLanguage
   end
 end
 
-project = MudInEveryLanguage::Project.new(ARGV[0] || ".")
+project = MudInEveryLanguage::Project.new(ENV["MUD_PROJECT"] || ARGV[0] || ".")
 
 server = TestServer.new(
   project_dir:  project.dir,
@@ -58,7 +58,6 @@ parsed_files = begin
     end
   end
 end
-
 
 parsed_files.each do |(filename, tree)|
   builder = MudInEveryLanguage::Spec::Builder.new(server, filename)

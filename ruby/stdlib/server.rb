@@ -2,6 +2,10 @@ require "socket"
 require "optparse"
 require "pathname"
 
+# Try not to laugh at this implementation. I'm focused mainly on the tests at
+# the moment, and trying to be a good TDDer by writing the most naive
+# implementation to make the tests green ;)
+
 options = {
   port: 2000,
   db_path: Pathname.new(File.expand_path("../db.yml", __FILE__))
@@ -106,7 +110,7 @@ loop do
           password = client.gets.strip
 
           if user["password"] == password
-            # client.puts "Welcome back, #{name}."
+            client.puts "Welcome back, #{name}."
             room = find_room(user)
 
             client.puts room.title

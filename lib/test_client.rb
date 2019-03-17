@@ -22,7 +22,7 @@ class TestClient
           @buf << line
           @log << "#{line}"
         end
-      rescue Errno::ECONNRESET
+      rescue IOError, Errno::ECONNRESET
         @log.puts "[Client disconnected by server]".yellow
       end
     end
