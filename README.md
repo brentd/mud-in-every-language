@@ -51,8 +51,8 @@ bin/mudspec ruby/stdlib
   * Javascript (Node.js)
 
 For each language, the intention is to create at least one implementation using
-only the language's standard library. Other variations can use interesting open-
-source libraries, or other design paradigms (for example, an event-loop driven
+only the language's standard library. Other variations can use interesting open-source 
+libraries, or other design paradigms (for example, an event-loop driven
 server instead of threads). Code for each language should be idiomatic and
 follow the spirit of the language as much as possible.
 
